@@ -7,16 +7,9 @@ import React from 'react';
 import theme from './theme';
 import { ChakraProvider } from '@chakra-ui/react';
 
-export default function App() {
-  const worlds = [
-    'decentraland',
-    'the-sandbox',
-    'somnium-space',
-    'cryptovoxels',
-  ];
-  const world = worlds[0];
-  console.log('world:', world);
+const worlds = ['decentraland', 'the-sandbox', 'somnium-space', 'cryptovoxels'];
 
+export default function App({ world = worlds[0] }: { world: string }) {
   return (
     <ChakraProvider theme={theme}>
       <Flex direction="column" w="100%" h="calc(100vh - 60px)" mt="60px">
