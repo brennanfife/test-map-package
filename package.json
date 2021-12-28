@@ -1,6 +1,6 @@
 {
   "name": "testmappackage",
-  "version": "1.0.7",
+  "version": "1.0.0",
   "description": "Maps package for the WeMeta marketplace",
   "keywords": [
     "ethereum",
@@ -17,10 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/the-metaverse/maps.git"
-  },
-  "bugs": {
-    "url": "https://github.com/the-metaverse/maps/issues"
+    "url": "git+https://github.com/brennanfife/test-map-package.git"
   },
   "main": "dist/index.js",
   "files": [
