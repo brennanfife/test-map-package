@@ -9,7 +9,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 
 const worlds = ['decentraland', 'the-sandbox', 'somnium-space', 'cryptovoxels'];
 
-export default function App({ world = worlds[0] }: { world: string }) {
+export const Map = ({ world = worlds[0] }: { world: string }) => {
   return (
     <ChakraProvider theme={theme}>
       <Flex direction="column" w="100%" h="calc(100vh - 60px)" mt="60px">
@@ -31,4 +31,4 @@ export default function App({ world = worlds[0] }: { world: string }) {
       </Flex>
     </ChakraProvider>
   );
-}
+};
