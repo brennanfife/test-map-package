@@ -6,11 +6,7 @@ import React from 'react';
 import Atlas from './Atlas';
 import Controls from './Controls';
 
-export default function DecentralandMap({
-  withControls,
-}: {
-  withControls?: boolean;
-}) {
+export function DecentralandMap({ withControls }: { withControls?: boolean }) {
   const [tiles, setTiles] = useState();
   const [, setTokenIds] = useState<any>({});
   const [heatTiles] = useState<any>();

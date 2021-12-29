@@ -1,4 +1,5 @@
 /// <reference types="react" />
-export declare const Map: ({ world }: {
+export declare function Map({ world, withControls, }: {
     world: string;
-}) => JSX.Element;
+    withControls: boolean;
+}): JSX.Element;

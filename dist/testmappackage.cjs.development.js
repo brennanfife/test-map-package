@@ -5,6 +5,8 @@ Object.defineProperty(exports, '__esModule', { value: true });
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var react = require('@chakra-ui/react');
+require('leaflet/dist/leaflet.css');
+var reactLeaflet = require('@monsonjeremy/react-leaflet');
 var React = require('react');
 var React__default = _interopDefault(React);
 var reactTileMap = require('react-tile-map');
@@ -856,6 +858,207 @@ try {
 }
 });
 
+function CryptoVoxels() {
+  var _useState = React.useState([]),
+      allFeatures = _useState[0],
+      setAllFeatures = _useState[1];
+
+  var _useState2 = React.useState(0),
+      hoverId = _useState2[0];
+
+  var _useState3 = React.useState(true),
+      setUpdateHover = _useState3[1];
+
+  function getAllFeatures() {
+    return _getAllFeatures.apply(this, arguments);
+  } // TODO: consider moving this above the component level to reduce endpoint calls
+
+
+  function _getAllFeatures() {
+    _getAllFeatures = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee() {
+      var URL_ENDPOINT, featuresJSON, featuresRaw, resp, features, parsedFeatures;
+      return runtime_1.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              URL_ENDPOINT = 'https://www.cryptovoxels.com/api/parcels.json';
+              featuresJSON = {
+                parcels: []
+              };
+              _context.prev = 2;
+              _context.next = 5;
+              return fetch(URL_ENDPOINT);
+
+            case 5:
+              featuresRaw = _context.sent;
+              _context.next = 8;
+              return featuresRaw.json();
+
+            case 8:
+              featuresJSON = _context.sent;
+              _context.next = 19;
+              break;
+
+            case 11:
+              _context.prev = 11;
+              _context.t0 = _context["catch"](2);
+              _context.next = 15;
+              return window.fetch('../../cryptovoxels_parcels.json');
+
+            case 15:
+              resp = _context.sent;
+              _context.next = 18;
+              return resp.json();
+
+            case 18:
+              featuresJSON = _context.sent;
+
+            case 19:
+              features = [];
+              featuresJSON.parcels.forEach(function (parcel) {
+                var value = {
+                  type: 'Feature',
+                  geometry: parcel.geometry,
+                  parcels: {
+                    parcel: parcel
+                  }
+                };
+                features.push(value);
+              });
+              parsedFeatures = features.map(function (item) {
+                item.geometry.coordinates[0] = item.geometry.coordinates[0].map(function (arr) {
+                  return Array.from(arr).reverse();
+                });
+                return item;
+              });
+              setAllFeatures(function () {
+                return parsedFeatures;
+              });
+
+            case 23:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, _callee, null, [[2, 11]]);
+    }));
+    return _getAllFeatures.apply(this, arguments);
+  }
+
+  React.useEffect(function () {
+    var mounted = true;
+
+    if (mounted) {
+      // if (
+      //   hoveredListing &&
+      //   hoveredListing.token_id &&
+      //   hoveredListing.token_id != hoverId
+      // ) {
+      // setHoverId(hoveredListing.token_id);
+      setUpdateHover(true); // }
+
+      if (allFeatures.length === 0) getAllFeatures();
+    } //hoveredListing
+
+
+    return function () {
+      mounted = false;
+    };
+  }, [allFeatures]);
+  var polygonOptions = {
+    fillOpacity: 0,
+    stroke: false,
+    color: 'purple'
+  };
+  var highlightOptions = {
+    fillOpacity: 0.5,
+    stroke: false,
+    color: 'purple'
+  };
+
+  function onClick(_x) {
+    return _onClick.apply(this, arguments);
+  }
+
+  function _onClick() {
+    _onClick = _asyncToGenerator( /*#__PURE__*/runtime_1.mark(function _callee2(id) {
+      return runtime_1.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              console.log('id:', id); // const URL_ENDPOINT = `asset/0x79986af15539de2db9a5086382daeda917a9cf0c/${id}`;
+              // try {
+              //   const assetRaw = await fetchOpensea(URL_ENDPOINT);
+              //   const asset = await assetRaw.json();
+              //   const formattedListing = formatAssetForCard(asset, selectedWorld);
+              //   setSelectedListing(formattedListing);
+              //   setListingDialogIsOpen(true);
+              // } catch (err) {
+              //   console.log(`onClick endpoint err: ${err}`);
+              // }
+
+            case 1:
+            case "end":
+              return _context2.stop();
+          }
+        }
+      }, _callee2);
+    }));
+    return _onClick.apply(this, arguments);
+  }
+
+  var onMouseEvent = function onMouseEvent(event, type, feature) {
+    console.log(feature);
+
+    switch (type) {
+      case 'over':
+        event.target.setStyle({
+          fillOpacity: 0.5
+        });
+        break;
+
+      case 'out':
+        event.target.setStyle({
+          fillOpacity: 0.0
+        });
+        break;
+    }
+  };
+
+  var cachedOverlay = React.useMemo(function () {
+    setUpdateHover(false);
+    return allFeatures.map(function (feature, i) {
+      return React__default.createElement(reactLeaflet.Polygon, {
+        key: i,
+        pathOptions: feature.parcels.parcel.id === hoverId ? highlightOptions : polygonOptions,
+        positions: feature.geometry.coordinates[0],
+        eventHandlers: {
+          click: function click() {
+            onClick(feature.parcels.parcel.id);
+          },
+          mouseover: function mouseover(event) {
+            return onMouseEvent(event, 'over', feature);
+          },
+          mouseout: function mouseout(event) {
+            return onMouseEvent(event, 'out', feature);
+          }
+        }
+      });
+    }); //updateHover, hoverId
+  }, [allFeatures]);
+  return React__default.createElement(react.Box, {
+    h: "100%",
+    w: "100%"
+  }, React__default.createElement(reactLeaflet.MapContainer, {
+    center: [0, 0],
+    zoom: 7
+  }, React__default.createElement(react.Box, {
+    h: "50rem"
+  }), React__default.createElement(reactLeaflet.TileLayer, {
+    url: "https://map.cryptovoxels.com/tile?z={z}&x={x}&y={y}"
+  }), cachedOverlay));
+}
+
 var _excluded = ["layers", "className"];
 var COLOR_BY_TYPE = /*#__PURE__*/Object.freeze({
   0: '#ff9990',
@@ -1361,6 +1564,81 @@ function DecentralandMap(_ref) {
   })) : React__default.createElement(react.Spinner, null));
 }
 
+// import 'leaflet/dist/leaflet.css';
+function SomniumMap() {
+  // const [allFeatures, setAllFeatures] = useState([]);
+  // async function getAllFeatures() {
+  //   try {
+  //     const URL_ENDPOINT = '/data/somnium-space.json';
+  //     const featuresRaw = await fetch(URL_ENDPOINT);
+  //     const featuresJSON = await featuresRaw.json();
+  //     let features: any[] = [];
+  //     featuresJSON.assets.forEach((asset: any) => {
+  //       features.push({ type: 'Feature', geometry: asset.geometry });
+  //     });
+  //     const parsedFeatures = features.map((item) => {
+  //       item.geometry.geometry.coordinates[0] =
+  //         item.geometry.geometry.coordinates[0].map((arr: any) => {
+  //           return arr.reverse();
+  //         });
+  //       return item;
+  //     });
+  //     const featuresGeometry: any = parsedFeatures.map((obj) => obj.geometry);
+  //     setAllFeatures(featuresGeometry);
+  //   } catch (err) {
+  //     console.log(`somniumSpace data fetch err: ${err}`);
+  //   }
+  // }
+  // useEffect(() => {
+  //   if (allFeatures.length === 0) getAllFeatures();
+  // }, [allFeatures]);
+  // const geoJSONOptions = {
+  //   color: 'white',
+  //   fillOpacity: 1,
+  //   stroke: false,
+  //   zIndex: 1,
+  // };
+  // async function onClick(id: number): Promise<any> {
+  //   console.log('id:', id);
+  // }
+  // const onMouseEvent = (event: any, type: any) => {
+  //   switch (type) {
+  //     case 'over':
+  //       event.target.setStyle({ color: 'purple' });
+  //       break;
+  //     case 'out':
+  //       event.target.setStyle({ color: 'white' });
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // };
+  // const cachedOverlay = useMemo(() => {
+  //   return allFeatures.map((obj: any, i) => (
+  //     <Polygon
+  //       key={i}
+  //       pathOptions={geoJSONOptions}
+  //       positions={obj.geometry.coordinates[0]}
+  //       eventHandlers={{
+  //         click: () => {
+  //           onClick(obj.id);
+  //         },
+  //         mouseover: (event: any) => onMouseEvent(event, 'over'),
+  //         mouseout: (event: any) => onMouseEvent(event, 'out'),
+  //       }}
+  //     />
+  //   ));
+  // }, [allFeatures]);
+  // const imageBounds = [
+  //   [-1, -1],
+  //   [1, 1],
+  // ];
+  return React__default.createElement(react.Box, {
+    h: "100%",
+    w: "100%"
+  }, "Somnium Space");
+}
+
 function TheSandboxMap() {
   var _useState = React.useState({}),
       tiles = _useState[0],
@@ -1671,33 +1949,20 @@ var customTheme = /*#__PURE__*/react.extendTheme({
 });
 
 var worlds = ['decentraland', 'the-sandbox', 'somnium-space', 'cryptovoxels'];
-var Map = function Map(_ref) {
+function Map(_ref) {
   var _ref$world = _ref.world,
-      world = _ref$world === void 0 ? worlds[0] : _ref$world;
+      world = _ref$world === void 0 ? worlds[0] : _ref$world,
+      _ref$withControls = _ref.withControls,
+      withControls = _ref$withControls === void 0 ? false : _ref$withControls;
   return React__default.createElement(react.ChakraProvider, {
     theme: customTheme
-  }, React__default.createElement(react.Flex, {
-    direction: "column",
-    w: "100%",
-    h: "calc(100vh - 60px)",
-    mt: "60px"
-  }, React__default.createElement(react.Flex, {
-    h: "100%"
   }, React__default.createElement(react.Box, {
-    w: "60%",
-    h: "100%"
+    h: "100%",
+    w: "100%"
   }, world === 'decentraland' ? React__default.createElement(DecentralandMap, {
-    withControls: true
-  }) : world === 'the-sandbox' ? React__default.createElement(TheSandboxMap, null) : // : world === 'somnium-space' ? (
-  //   <SomniumSpace />
-  // ) : world === 'cryptovoxels' ? (
-  //   <Cryptovoxels />
-  // )
-  null), React__default.createElement(react.Box, {
-    w: "40%",
-    bg: "red.200"
-  }))));
-};
+    withControls: withControls
+  }) : world === 'the-sandbox' ? React__default.createElement(TheSandboxMap, null) : world === 'somnium-space' ? React__default.createElement(SomniumMap, null) : world === 'cryptovoxels' ? React__default.createElement(CryptoVoxels, null) : null));
+}
 
 exports.Map = Map;
 //# sourceMappingURL=testmappackage.cjs.development.js.map

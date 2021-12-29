@@ -1,4 +1,4 @@
 /// <reference types="react" />
-export default function DecentralandMap({ withControls, }: {
+export declare function DecentralandMap({ withControls }: {
     withControls?: boolean;
 }): JSX.Element;
