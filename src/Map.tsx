@@ -1,11 +1,11 @@
-import { Box } from '@chakra-ui/react';
-import Cryptovoxels from './common/Maps/Cryptovoxels';
-import { DecentralandMap } from './common/Maps/Decentraland/Decentraland';
-import SomniumSpace from './common/Maps/SomniumSpace';
-import TheSandbox from './common/Maps/TheSandbox';
+import { Box, ChakraProvider } from '@chakra-ui/react';
 import React from 'react';
+
+import Cryptovoxels from './components/Maps/Cryptovoxels';
+import Decentraland from './components/Maps/Decentraland';
+// import SomniumSpace from './components/Maps/SomniumSpace';
+import TheSandbox from './components/Maps/TheSandbox';
 import theme from './theme';
-import { ChakraProvider } from '@chakra-ui/react';
 
 const worlds = ['decentraland', 'the-sandbox', 'somnium-space', 'cryptovoxels'];
 
@@ -14,18 +14,19 @@ export function Map({
   withControls = false,
 }: {
   world: string;
-  withControls: boolean;
+  withControls?: boolean;
 }) {
   return (
     <ChakraProvider theme={theme}>
       <Box h="100%" w="100%">
         {world === 'decentraland' ? (
-          <DecentralandMap withControls={withControls} />
+          <Decentraland withControls={withControls} />
         ) : world === 'the-sandbox' ? (
           <TheSandbox />
-        ) : world === 'somnium-space' ? (
-          <SomniumSpace />
-        ) : world === 'cryptovoxels' ? (
+        ) : // : world === 'somnium-space' ? (
+        //   <SomniumSpace />
+        // ) :
+        world === 'cryptovoxels' ? (
           <Cryptovoxels />
         ) : null}
       </Box>

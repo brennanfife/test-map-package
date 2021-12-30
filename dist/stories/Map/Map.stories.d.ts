@@ -1,7 +1,8 @@
 /// <reference types="react" />
+import { Map } from '../../Map';
 declare const _default: {
     title: string;
-    component: any;
+    component: typeof Map;
 };
 export default _default;
 export declare const Default: () => JSX.Element;

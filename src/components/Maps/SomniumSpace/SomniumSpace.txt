@@ -1,0 +1,137 @@
+import 'leaflet/dist/leaflet.css';
+
+import { Box } from '@chakra-ui/react';
+import {
+  ImageOverlay,
+  MapContainer,
+  Polygon,
+} from '@monsonjeremy/react-leaflet';
+import React, { useEffect, useMemo, useState } from 'react';
+
+export default function SomniumSpace({
+  standardizeListing,
+  setSelectedListing,
+}: {
+  standardizeListing?: any;
+  setSelectedListing?: any;
+}) {
+  const [allFeatures, setAllFeatures] = useState<any[]>([]);
+
+  async function getAllFeatures() {
+    try {
+      const URL_ENDPOINT = '/somniumSpace.json';
+      const featuresRaw = await fetch(URL_ENDPOINT);
+      const featuresJSON = await featuresRaw.json();
+
+      let features: any[] = [];
+      featuresJSON.assets.forEach((asset: any) => {
+        features.push({ type: 'Feature', geometry: asset.geometry });
+      });
+
+      const parsedFeatures = features.map((item) => {
+        item.geometry.geometry.coordinates[0] =
+          item.geometry.geometry.coordinates[0].map((arr: any) => {
+            return arr.reverse();
+          });
+
+        return item;
+      });
+
+      const featuresGeometry = parsedFeatures.map((obj) => obj.geometry);
+      setAllFeatures(featuresGeometry);
+    } catch (err) {
+      console.log(`somniumSpace data fetch err: ${err}`);
+    }
+  }
+
+  useEffect(() => {
+    if (allFeatures.length === 0) getAllFeatures();
+  }, [allFeatures]);
+
+  const onMouseEvent = (event: any, type: any) => {
+    switch (type) {
+      case 'over':
+        event.target.setStyle({ color: 'purple' });
+        break;
+      case 'out':
+        event.target.setStyle({ color: 'white' });
+        break;
+      default:
+        break;
+    }
+  };
+
+  const cachedOverlay = useMemo(() => {
+    const geoJSONOptions = {
+      color: 'white',
+      fillOpacity: 1,
+      stroke: false,
+      zIndex: 1,
+    };
+
+    async function onClick(id: number): Promise<any> {
+      console.log('id:', id);
+      try {
+        // const assetRaw = await fetchOpensea(
+        //   `asset/0x913ae503153d9A335398D0785Ba60A2d63dDB4e2/${id}`,
+        // );
+        // const asset = await assetRaw.json();
+        const asset = {};
+        if (setSelectedListing && standardizeListing) {
+          setSelectedListing(standardizeListing(asset));
+        }
+      } catch (err) {
+        console.log(`onClick endpoint err: ${err}`);
+      }
+    }
+
+    return allFeatures.map((obj, i) => (
+      <Polygon
+        key={i}
+        pathOptions={geoJSONOptions}
+        positions={obj.geometry.coordinates[0]}
+        eventHandlers={{
+          click: () => {
+            onClick(obj.id);
+          },
+          mouseover: (event) => onMouseEvent(event, 'over'),
+          mouseout: (event) => onMouseEvent(event, 'out'),
+        }}
+      />
+    ));
+  }, [allFeatures, standardizeListing, setSelectedListing]);
+
+  const imageBounds = [
+    [-1, -1],
+    [1, 1],
+  ];
+
+  return (
+    <Box h="100%" w="100%">
+      <MapContainer
+        center={[0, 0]}
+        zoom={11}
+        style={{ backgroundColor: '#05484d' }}
+        //@ts-ignore
+        maxBounds={imageBounds}
+        scrollWheelZoom={false}
+        maxBoundsViscosity={1.0}
+        doubleClickZoom={false}
+        touchZoom={false}
+        boxZoom={false}
+        keyboard={false}
+        zoomControl={false}
+        attributionControl={false}
+      >
+        <ImageOverlay
+          //@ts-ignore
+          bounds={imageBounds}
+          url="https://map.somniumspace.com/images/Waterfront_Extended_Parcels_Map_allgreen.jpg"
+        >
+          <Box h="20rem" />
+          {cachedOverlay}
+        </ImageOverlay>
+      </MapContainer>
+    </Box>
+  );
+}

@@ -1,5 +1,6 @@
-import Map from '../../common/Maps';
 import React from 'react';
+
+import { Map } from '../../Map';
 
 export default {
   title: 'Common/Map',
