@@ -9,25 +9,44 @@ import theme from './theme';
 
 const worlds = ['decentraland', 'the-sandbox', 'somnium-space', 'cryptovoxels'];
 
+interface IMap {
+  world: string;
+  setSelectedListing?: any;
+  standardizeListing?: () => any;
+  forSale?: boolean;
+  withControls?: boolean;
+}
+
 export function Map({
   world = worlds[0],
+  setSelectedListing,
+  standardizeListing,
+  forSale = false,
   withControls = false,
-}: {
-  world: string;
-  withControls?: boolean;
-}) {
+}: IMap) {
   return (
     <ChakraProvider theme={theme}>
       <Box h="100%" w="100%">
         {world === 'decentraland' ? (
-          <Decentraland withControls={withControls} />
-        ) : world === 'the-sandbox' ? (
+          <Decentraland
+            withControls={withControls}
+            forSale={forSale}
+            standardizeListing={standardizeListing}
+            setSelectedListing={setSelectedListing}
+          />
+        ) : world === 'the_sandbox' ? (
           <TheSandbox />
-        ) : // : world === 'somnium-space' ? (
-        //   <SomniumSpace />
+        ) : // : world === 'somnium_space' ? (
+        //   <SomniumSpace
+        //     standardizeListing={standardizeListing}
+        //     setSelectedListing={setSelectedListing}
+        //   />
         // ) :
         world === 'cryptovoxels' ? (
-          <Cryptovoxels />
+          <Cryptovoxels
+            standardizeListing={standardizeListing}
+            setSelectedListing={setSelectedListing}
+          />
         ) : null}
       </Box>
     </ChakraProvider>
